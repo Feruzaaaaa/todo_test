@@ -1,17 +1,48 @@
-# todo_projectt_test
 
-A new Flutter project.
+# Todo Project (Flutter + MVVM)
 
-## Getting Started
+Небольшое приложение для управления задачами с drag-and-drop, построенное на Flutter и архитектуре MVVM. Интерфейс выполнен в стиле карточек с расширяемыми секциями и кастомным диалогом создания задачи.
 
-This project is a starting point for a Flutter application.
+## Возможности
 
-A few resources to get you started if this is your first Flutter project:
+- четыре статуса задач: «К выполнению», «В работе», «На проверке», «Выполнено»;
+- перетаскивание задач между статусами;
+- акцент на UX: подсветка целей drop-зоны, плавающие лейблы в полях, индикатор «Просрочена»;
+- локальное хранение данных через Hive;
+- адаптация интерфейса под веб (Chrome) и мобильные платформы.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Технический стек
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# todo_test
+- Flutter 3.x
+- MVVM с `ChangeNotifier` + `provider`
+- Hive / Hive Flutter
+- Google Fonts
+- Intl (локаль `ru`)
+
+## Структура
+
+```
+assets/                  # иконки (bookmark/calendar/trash)
+lib/
+ ├─ main.dart            # инициализация Hive + provider
+ ├─ models/              # Task (HiveModel)
+ ├─ services/            # StorageService
+ ├─ viewmodels/          # TodoViewModel
+ └─ views/
+    ├─ screens/          # TodoScreen
+    └─ widgets/
+       ├─ cards/         # TaskItemContent, TodoStatusCard
+       ├─ dialogs/       # CreateTaskDialog + компоненты
+       └─ items/         # DraggableTaskItem
+```
+
+## Сборка / тестирование
+
+- `flutter test` – Юнит/виджет-тесты (при наличии)
+- `flutter build apk` / `flutter build web` – для релизных сборок
+
+## Автор
+
+Feruza (GitHub: [Feruzaaaaa](https://github.com/Feruzaaaaa))
+
+
