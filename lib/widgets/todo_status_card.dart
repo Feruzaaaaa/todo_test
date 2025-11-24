@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/task_model.dart';
-import 'draggable_task_item.dart';
 
 class TodoStatusCard extends StatelessWidget {
   final String title;
   final int count;
   final bool isExpanded;
   final VoidCallback onTap;
-  final List<Task> tasks;
-  final Function(Task, String) onStatusChange;
   final bool isHighlighted;
 
   const TodoStatusCard({
@@ -18,8 +14,6 @@ class TodoStatusCard extends StatelessWidget {
     required this.count,
     required this.isExpanded,
     required this.onTap,
-    required this.tasks,
-    required this.onStatusChange,
     this.isHighlighted = false,
   }) : super(key: key);
 
@@ -41,12 +35,7 @@ class TodoStatusCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _buildHeader(),
-          if (isExpanded) _buildTasksList(),
-        ],
-      ),
+      child: _buildHeader(),
     );
   }
 
@@ -89,17 +78,6 @@ class TodoStatusCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTasksList() {
-    return Column(
-      children: tasks
-          .map((task) => DraggableTaskItem(
-        task: task,
-        onStatusChange: onStatusChange,
-      ))
-          .toList(),
     );
   }
 }

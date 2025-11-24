@@ -8,12 +8,12 @@ import 'models/task_model.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Инициализация Hive
+
   await Hive.initFlutter();
   Hive.registerAdapter(TaskAdapter());
   await Hive.openBox<Task>('tasks');
 
-  // Инициализация русской локали для дат
+
   await initializeDateFormatting('ru', null);
 
   runApp(const MyApp());
