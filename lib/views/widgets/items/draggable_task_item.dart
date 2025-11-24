@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-import '../models/task_model.dart';
-import '../services/storage_service.dart';
-import 'task_item_content.dart';
+
+import '../../../models/task_model.dart';
+import '../cards/task_item_content.dart';
 
 class DraggableTaskItem extends StatelessWidget {
   final Task task;
-  final Function(Task, String) onStatusChange;
+  final Future<void> Function(Task task) onDelete;
 
   const DraggableTaskItem({
-    Key? key,
+    super.key,
     required this.task,
-    required this.onStatusChange,
-  }) : super(key: key);
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final storage = StorageService();
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final double feedbackWidth = constraints.maxWidth - 20;
@@ -32,19 +30,30 @@ class DraggableTaskItem extends StatelessWidget {
                   ),
                   child: GestureDetector(
                     onTap: () async {
-                      await storage.deleteTask(task);
+                      await onDelete(task);
                       Navigator.pop(context);
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: const Text(
-                        "Удалить",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/icons/trash-one.png',
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          const Text(
+                            "Удалить",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

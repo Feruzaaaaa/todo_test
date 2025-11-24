@@ -7,14 +7,18 @@
 #   │   └── storage_service.dart
 #   ├── screens/
 #   │   └── todo_screen.dart
-#   ├── widgets/
-#   │   ├── create_task_dialog.dart
-#   │   ├── todo_status_card.dart
-#   │   ├── draggable_task_item.dart
-#   │   └── task_item_content.dart
+#   ├── viewmodels/
+#   │   └── todo_view_model.dart
+#   ├── views/
+#   │   ├── screens/
+#   │   └── widgets/
+#   │       ├── cards/
+#   │       ├── dialogs/
+#   │       └── items/
 #   └── assets/
 #       └── icons/
-#           └── bookmark.png
+#           ├── bookmark.png
+#           └── calendar.png
 
 name: todo_app
 description: A Flutter Todo application
@@ -31,6 +35,7 @@ dependencies:
   google_fonts: ^6.1.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -42,4 +47,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/icons/
+    - assets/icons/

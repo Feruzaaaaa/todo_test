@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../models/task_model.dart';
-import '../services/storage_service.dart';
-import '../widgets/create_task_dialog.dart';
-import '../widgets/todo_status_card.dart';
-import '../widgets/draggable_task_item.dart';
+import 'package:provider/provider.dart';
+
+import '../../models/task_model.dart';
+import '../../viewmodels/todo_view_model.dart';
+import '../widgets/dialogs/create_task_dialog.dart';
+import '../widgets/cards/todo_status_card.dart';
+import '../widgets/items/draggable_task_item.dart';
 
 class TodoScreen extends StatefulWidget {
   const TodoScreen({Key? key}) : super(key: key);
@@ -15,17 +16,19 @@ class TodoScreen extends StatefulWidget {
 }
 
 class _TodoScreenState extends State<TodoScreen> {
-  final StorageService _storageService = StorageService();
-
-  final Map<String, bool> _expandedSections = {
-    'К выполнению': false,
-    'В работе': false,
-    'На проверке': false,
-    'Выполнено': false,
-  };
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<TodoViewModel>().initialize();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<TodoViewModel>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFA),
       body: SafeArea(
@@ -37,7 +40,7 @@ class _TodoScreenState extends State<TodoScreen> {
               _buildHeader(),
               const SizedBox(height: 32),
               Expanded(
-                child: _buildTasksList(),
+                child: _buildTasksList(viewModel),
               ),
             ],
           ),
@@ -78,62 +81,50 @@ class _TodoScreenState extends State<TodoScreen> {
     );
   }
 
-  Widget _buildTasksList() {
-    return ValueListenableBuilder(
-      valueListenable: Hive.box<Task>('tasks').listenable(),
-      builder: (context, Box<Task> box, _) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildStatusSection('К выполнению'),
+  Widget _buildTasksList(TodoViewModel viewModel) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (int i = 0; i < viewModel.statuses.length; i++) ...[
+            _buildStatusSection(viewModel.statuses[i], viewModel),
+            if (i != viewModel.statuses.length - 1)
               const SizedBox(height: 12),
-              _buildStatusSection('В работе'),
-              const SizedBox(height: 12),
-              _buildStatusSection('На проверке'),
-              const SizedBox(height: 12),
-              _buildStatusSection('Выполнено'),
-            ],
-          ),
-        );
-      },
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _buildStatusSection(String status) {
-    final tasks = _storageService.getTasksByStatus(status);
+  Widget _buildStatusSection(String status, TodoViewModel viewModel) {
+    final tasks = viewModel.tasksForStatus(status);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DragTarget<Task>(
           onAcceptWithDetails: (details) {
-            _changeTaskStatus(details.data, status);
+            viewModel.updateTaskStatus(details.data, status);
           },
           builder: (context, candidateData, rejectedData) {
             return TodoStatusCard(
               title: status,
               count: tasks.length,
-              isExpanded: _expandedSections[status]!,
-              onTap: () {
-                setState(() {
-                  _expandedSections[status] = !_expandedSections[status]!;
-                });
-              },
+              isExpanded: viewModel.isExpanded(status),
+              onTap: () => viewModel.toggleSection(status),
               isHighlighted: candidateData.isNotEmpty,
             );
           },
         ),
 
-        // ⭐ ЗАДАЧИ ТЕПЕРЬ НИЖЕ КАРТОЧКИ (не внутри неё)
-        if (_expandedSections[status]!)
+        if (viewModel.isExpanded(status))
           Column(
             children: tasks
                 .map(
                   (task) => DraggableTaskItem(
-                task: task,
-                onStatusChange: _changeTaskStatus,
-              ),
-            )
+                      task: task,
+                      onDelete: viewModel.deleteTask,
+                    ),
+                  )
                 .toList(),
           ),
       ],
@@ -141,22 +132,13 @@ class _TodoScreenState extends State<TodoScreen> {
   }
 
   void _showCreateTaskDialog() {
+    final viewModel = context.read<TodoViewModel>();
     showCreateTaskDialog(
       context: context,
-      onTaskCreated: (String title, DateTime date) async {
-        final task = Task(
-          title: title,
-          date: date,
-          status: 'К выполнению',
-        );
-        await _storageService.addTask(task);
+      onTaskCreated: (String title, DateTime date) {
+        viewModel.addTask(title, date);
       },
     );
-  }
-
-  void _changeTaskStatus(Task task, String newStatus) async {
-    task.status = newStatus;
-    await _storageService.updateTask(task);
   }
 }
 

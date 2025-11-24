@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/task_model.dart';
 
 class StorageService {
@@ -6,6 +8,10 @@ class StorageService {
 
   // Получить Box с задачами
   Box<Task> get _box => Hive.box<Task>(_boxName);
+
+  ValueListenable<Box<Task>> listenable() {
+    return _box.listenable();
+  }
 
   // Получить все задачи
   List<Task> getAllTasks() {
